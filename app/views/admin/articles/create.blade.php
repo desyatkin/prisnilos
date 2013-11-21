@@ -30,39 +30,7 @@ tinymce.init({
 			<input type="text" class="form-control" id="alias" name="alias" placeholder="ЧПУ" value="{{ $article['alias'] }}">
 		</div>
 	</div>
-
-
-	{{-- Категория --}}
-	<div class="form-group">
-		<label for="category" class="col-lg-2 control-label">Категория</label>
-		<div class="col-lg-10">		
-			<select name="category" id="category" class="form-control" onchange="getSubcategories();">
-				<option value="0"></option>
-				@foreach($categories as $category)
-					<option value="{{ $category->id }}" @if($category['id'] == $article['category_id']) selected @endif>
-						{{ $category->category_name }}
-					</option>
-				@endforeach
-			</select>
-		</div>
-	</div>
-
-
-	{{-- Подкатегория --}}
-	<div class="form-group">
-		<label for="subcategory" class="col-lg-2 control-label">Подкатегория</label>
-		<div class="col-lg-10">		
-			<select name="subcategory" id="subcategory" class="form-control" @if(empty($subcategories)) disabled @endif>
-				<option></option>
-				@foreach($subcategories as $subcategory)
-					<option value="{{ $subcategory['id'] }}" @if($subcategory['id'] == $article['subcategory_id']) selected @endif>
-						{{ $subcategory['category_name'] }}
-					</option>
-				@endforeach
-			</select>
-		</div>
-	</div>
-
+	
 
 	{{-- H1 заголовок --}}
 	<div class="form-group">

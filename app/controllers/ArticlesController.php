@@ -27,8 +27,7 @@ class ArticlesController extends \BaseController {
 		// get html of categories tree
 		//$tree = $this->createTree();
 
-		$view = View::make('admin.articles.list')
-						->with('articles', $articles);
+		$view = View::make('admin.articles.tree');
 
 		return $view;
 	}
@@ -38,16 +37,12 @@ class ArticlesController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-	public function getCreate()
+	public function getCreate($idCategory)
 	{
-		// получаем список категорий
-		$categories = Categories::where('parent_id', '=', 0)
-									->get();
-
+		
 		// Биндим переменные для редаткирования
 		$article['id'] = '';
-		$article['category_id'] = '';
-		$article['subcategory_id'] = '';
+		$article['category_id'] = $idCategory;
 		$article['article_name'] = '';
 		$article['alias'] = '';
 		$article['header'] = '';
@@ -58,9 +53,7 @@ class ArticlesController extends \BaseController {
 		$article['preview'] = '';
 
 		$view = View::make('admin.articles.create')
-						->with('article', $article)
-						->with('categories', $categories)
-						->with('subcategories', array());
+						->with('article', $article);
 
 		return $view;
 	}
@@ -194,7 +187,7 @@ class ArticlesController extends \BaseController {
 			foreach ($subcategories as $subcategory) {
 				
 				echo '<li>
-						 	<a href="#">'. $subcategory->category_name .'</a>';
+						 	<a href="/admin/articles/show-category/'. $subcategory->id .'">'. $subcategory->category_name .'</a>';
 							echo ArticlesController::createTree($subcategory->id);
 				echo '</li>';
 				
@@ -204,6 +197,23 @@ class ArticlesController extends \BaseController {
 		} 
 		
 	}
+
+
+	//------------------------------------------------------------------------------
+	// Show articles in category
+	//------------------------------------------------------------------------------
+	public function getShowCategory($id) {
+		$articles = Articles::where('category_id', '=', $id)->get();
+
+		$view = View::make('admin.articles.list')
+						->with('articles', $articles)
+						->with('categoryId', $id);
+
+		return $view;
+	}
+
+
+
 
 
 
