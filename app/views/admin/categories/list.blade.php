@@ -20,7 +20,7 @@
 	        <div class="form-group">
 	                <label for="categoryName" class="col-lg-2 control-label">Название категории</label>
 	                <div class="col-lg-10">
-	                        <input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="Название категории" onkeyup="alias_category();">
+	                        <input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="Название категории" onkeyup="translitCategoryUpdate();">
 	                </div>
 	        </div>
 
@@ -161,5 +161,24 @@ function updateCategory() {
 		document.location.reload(true);
 	});
 }
+
+	//------------------------------------------------------------------------------
+    // translit category name to alias and show field to edit alias
+    //------------------------------------------------------------------------------
+    function translitCategoryUpdate() {
+        var category = $('#categoryName').val();
+
+        // hide if empty
+        if(category == '') {
+            $('#alias').hide("slow");
+            return true;   
+        }
+
+        // show field with translated alias
+        alias = cyr2lat(category);
+        $('#alias').val(alias).show("fast");
+        return true;
+    }
+
 
 </script>

@@ -28,7 +28,7 @@
 
         // show field with translated alias
         alias = cyr2lat(category);
-        $('#categoryAlias').val(alias).show("fasr");
+        $('#categoryAlias').val(alias).show("fast");
         return true;
     }
 

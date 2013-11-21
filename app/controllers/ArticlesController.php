@@ -10,15 +10,6 @@ class ArticlesController extends \BaseController {
 	public function getIndex($categoryId = 999, $subcategoryId = 0)
 	{
 
-//        $articles = Articles::all();
-//
-//        foreach($articles as $article) {
-//            $article->preview = mb_substr($article->preview, 1);
-//            $article->save();
-//        }
-//
-//        exit;
-
 		// Получаем статьи с пагинацией
 		if($categoryId == 999) $articles = Articles::paginate(25);
 		else {
@@ -30,18 +21,14 @@ class ArticlesController extends \BaseController {
 			else $articles = Articles::where('category_id', '=', $categoryId)->paginate(25);
 		}
 
-		// Получаем список категорий
-		$categories = Categories::where('parent_id', '=', 0)->get();
+		// get all categories
+		$categories = Categories::all()->toArray();
 
-		// Получаем список подкатегорий
-		$subcategories = Categories::where('parent_id', '=', $categoryId)->get();
+		// get html of categories tree
+		//$tree = $this->createTree();
 
 		$view = View::make('admin.articles.list')
-						->with('articles', $articles)
-						->with('categories', $categories)
-						->with('subcategories', $subcategories)
-						->with('categoryId', $categoryId)
-						->with('subcategoryId', $subcategoryId);
+						->with('articles', $articles);
 
 		return $view;
 	}
@@ -190,6 +177,32 @@ class ArticlesController extends \BaseController {
 		}
 
 		return $result;
+	}
+
+	//------------------------------------------------------------------------------
+	// function create family tree for categories 
+	// use this plugin - http://thecodeplayer.com/walkthrough/css3-family-tree
+	//------------------------------------------------------------------------------
+	public static function createTree($id=0) {
+
+		$subcategories = Categories::where('parent_id', '=', $id);
+
+		if($subcategories->exists()) {
+			$subcategories = $subcategories->get();
+			
+			echo '<ul>'; 
+			foreach ($subcategories as $subcategory) {
+				
+				echo '<li>
+						 	<a href="#">'. $subcategory->category_name .'</a>';
+							echo ArticlesController::createTree($subcategory->id);
+				echo '</li>';
+				
+			}
+			echo '</ul>'; 
+			
+		} 
+		
 	}
 
 
