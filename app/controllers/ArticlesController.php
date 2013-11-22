@@ -2,32 +2,18 @@
 
 class ArticlesController extends \BaseController {
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function getIndex($categoryId = 999, $subcategoryId = 0)
-	{
+    //------------------------------------------------------------------------------
+    // Main page
+    //
+    // author - kdesyatkin
+    // date - 22/11/13 17:51
+    //------------------------------------------------------------------------------
+	public function getIndex($categoryId = 999, $subcategoryId = 0)	{
 
-		// Получаем статьи с пагинацией
-		if($categoryId == 999) $articles = Articles::paginate(25);
-		else {
-			if($subcategoryId != 0) {
-				$articles = Articles::where('category_id', '=', $categoryId)
-															->where('subcategory_id', '=', $subcategoryId)
-															->paginate(25);
-			}
-			else $articles = Articles::where('category_id', '=', $categoryId)->paginate(25);
-		}
+        $categories = Categories::where('parent_id', '=', 0)->get();
 
-		// get all categories
-		$categories = Categories::all()->toArray();
-
-		// get html of categories tree
-		//$tree = $this->createTree();
-
-		$view = View::make('admin.articles.tree');
+		$view = View::make('admin.articles.categories')
+                        ->with('categories', $categories);
 
 		return $view;
 	}
@@ -53,7 +39,8 @@ class ArticlesController extends \BaseController {
 		$article['preview'] = '';
 
 		$view = View::make('admin.articles.create')
-						->with('article', $article);
+						->with('article', $article)
+						->with('categoryId', $idCategory);
 
 		return $view;
 	}
@@ -68,14 +55,13 @@ class ArticlesController extends \BaseController {
 		if( !Input::has('articleName') ) die('Поле название обязательно для заполнения');
 
 		// Загружаем изображение 
-		$preview = $this->uploadImage('preview', 'uploads/');
+		$preview = $this->uploadImage('preview', 'userfiles/');
 
 		//  Если редактирование, то выбираем элемент
 		if(Input::has('id')) $article = Articles::find( Input::get('id') );
 		else $article                   = new Articles;
 
-		$article->category_id      = Input::get('category');
-		$article->subcategory_id   = Input::get('subcategory');
+		$article->category_id      = Input::get('categoryId');
 		$article->article_name     = Input::get('articleName');
 		$article->alias            = Input::get('alias');
 		$article->header           = Input::get('header');
@@ -89,7 +75,7 @@ class ArticlesController extends \BaseController {
 		
 		$article->save();
 
-		return Redirect::to('/admin/articles/');
+		return Redirect::to('/admin/articles/show-category/'.Input::get('categoryId'));
 	}
 
 	/**
@@ -111,20 +97,11 @@ class ArticlesController extends \BaseController {
 	 */
 	public function getEdit($id)
 	{
-		// получаем список категорий
-		$categories = Categories::where('parent_id', '=', 0)
-									->get();
-
 		// Получаем статью
 		$article = Articles::find($id)->toArray();
 
-		// Получаем список подкатегорий
-		$subcategories = Categories::where('parent_id', '=', $article['category_id'])->get()->toArray();
-
 		$view = View::make('admin.articles.create')
-						->with('article', $article)
-						->with('categories', $categories)
-						->with('subcategories', $subcategories);
+						->with('article', $article);
 
 		return $view;
 	}
@@ -175,6 +152,9 @@ class ArticlesController extends \BaseController {
 	//------------------------------------------------------------------------------
 	// function create family tree for categories 
 	// use this plugin - http://thecodeplayer.com/walkthrough/css3-family-tree
+    //
+    // !!! Not used now !!!
+    //
 	//------------------------------------------------------------------------------
 	public static function createTree($id=0) {
 
@@ -183,11 +163,11 @@ class ArticlesController extends \BaseController {
 		if($subcategories->exists()) {
 			$subcategories = $subcategories->get();
 			
-			echo '<ul>'; 
+			echo '<ul>';
 			foreach ($subcategories as $subcategory) {
-				
+
 				echo '<li>
-						 	<a href="/admin/articles/show-category/'. $subcategory->id .'">'. $subcategory->category_name .'</a>';
+  						 	<a onclick="return false;" href="/admin/articles/show-category/'. $subcategory->id .'">'. $subcategory->category_name .'</a>';
 							echo ArticlesController::createTree($subcategory->id);
 				echo '</li>';
 				
@@ -203,7 +183,7 @@ class ArticlesController extends \BaseController {
 	// Show articles in category
 	//------------------------------------------------------------------------------
 	public function getShowCategory($id) {
-		$articles = Articles::where('category_id', '=', $id)->get();
+		$articles = Articles::where('category_id', '=', $id)->paginate(25);
 
 		$view = View::make('admin.articles.list')
 						->with('articles', $articles)
@@ -211,6 +191,7 @@ class ArticlesController extends \BaseController {
 
 		return $view;
 	}
+
 
 
 

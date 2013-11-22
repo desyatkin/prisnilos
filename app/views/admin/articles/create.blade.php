@@ -30,7 +30,7 @@ tinymce.init({
 			<input type="text" class="form-control" id="alias" name="alias" placeholder="ЧПУ" value="{{ $article['alias'] }}">
 		</div>
 	</div>
-	
+
 
 	{{-- H1 заголовок --}}
 	<div class="form-group">
@@ -90,8 +90,12 @@ tinymce.init({
 		</div>
 	</div>
 
-	{{-- Скрытое поле с id --}}
+	{{-- Скрытое поле с id статьи --}}
 	<input type="hidden" name="id" value="{{ $article['id'] }}">
+
+
+	{{-- hidden input with id category, for redirect --}}
+	<input type="hidden" name="categoryId" value="{{ $categoryId }}">
 
 
 	{{-- Кнопки управления --}}
